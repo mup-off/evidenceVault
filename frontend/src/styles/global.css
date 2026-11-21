@@ -193,15 +193,6 @@ code,
   background: var(--night-2);
   border-left-color: var(--tape);
 }
-.nav-soon {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  padding: 1px 5px;
-  border: 1px solid #4a4636;
-  border-radius: 2px;
-  color: var(--night-dim);
-}
 
 .whoami {
   margin-top: auto;

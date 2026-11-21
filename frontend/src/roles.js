@@ -18,16 +18,27 @@ export const canReopenCase = (user) => user.role === 'administrator';
 
 export const seesAlerts = (user) => user.role === 'administrator' || user.role === 'auditor';
 
-/**
- * Navigation, filtered by role. `phase` marks screens that are planned but
- * not built yet; they open a placeholder page.
- */
+/** Registering: administrators anywhere; investigators on assigned cases (the API checks assignment). */
+export const canRegisterEvidence = (user) => user.role === 'administrator' || user.role === 'investigator';
+
+/** Auditors may inspect everything but never download the original file. */
+export const canDownload = (user) => user.role !== 'auditor';
+
+/** The holder may request a transfer; administrators may reassign any item. */
+export const canRequestTransfer = (user, evidence) =>
+  user.role !== 'auditor' && (evidence.currentCustodianId === user.id || user.role === 'administrator');
+
+/** Roles that can hold evidence (transfer recipients). */
+export const HOLDER_ROLES = ['administrator', 'investigator', 'custodian'];
+
+/** Navigation, filtered by role. */
 export const NAV = [
   { to: '/', label: 'Dashboard', end: true },
   { to: '/cases', label: 'Cases' },
-  { to: '/evidence', label: 'Evidence', phase: 5 },
-  { to: '/audit', label: 'Audit log', roles: ['administrator', 'auditor'], phase: 5 },
-  { to: '/users', label: 'Users', roles: ['administrator'], phase: 5 },
+  { to: '/evidence', label: 'Evidence' },
+  { to: '/audit', label: 'Audit log', roles: ['administrator', 'auditor'] },
+  { to: '/alerts', label: 'Alerts', roles: ['administrator', 'auditor'] },
+  { to: '/users', label: 'Users', roles: ['administrator'] },
 ];
 
 export const navFor = (user) => NAV.filter((item) => !item.roles || item.roles.includes(user.role));

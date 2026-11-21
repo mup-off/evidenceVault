@@ -6,7 +6,7 @@ import { useResource } from '../api/useResource.js';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { Empty, ErrorNote, Forbidden, Loading, NotFound, PageHeader, Panel, Status, Tag } from '../components/ui.jsx';
 import { formatDate, formatDateTime } from '../format.js';
-import { canManageCase, canReopenCase } from '../roles.js';
+import { canManageCase, canRegisterEvidence, canReopenCase } from '../roles.js';
 
 function EditCase({ caseRow, onSaved, onCancel }) {
   const [title, setTitle] = useState(caseRow.title);
@@ -135,15 +135,27 @@ function Members({ caseRow, members, manage, onChange }) {
   );
 }
 
-function CaseEvidence({ caseId }) {
+function CaseEvidence({ caseId, canRegister }) {
   const { data, error, loading } = useResource(`/evidence?caseId=${caseId}`);
   return (
-    <Panel title="Evidence" meta={data && <span className="count">{data.evidence.length}</span>}>
+    <Panel
+      title="Evidence"
+      meta={
+        <>
+          {data && <span className="count">{data.evidence.length}</span>}
+          {canRegister && (
+            <Link className="btn btn-small btn-primary" to={`/evidence/new?caseId=${caseId}`}>
+              Register evidence
+            </Link>
+          )}
+        </>
+      }
+    >
       <ErrorNote error={error} />
       {loading && !data && <Loading label="Loading evidence" />}
       {data &&
         (data.evidence.length === 0 ? (
-          <Empty title="No evidence registered">Registering evidence from the browser arrives in Phase 5.</Empty>
+          <Empty title="No evidence registered">{canRegister ? 'Use “Register evidence” to add the first item.' : null}</Empty>
         ) : (
           <div className="table-wrap">
             <table className="table table-compact">
@@ -274,7 +286,7 @@ export default function CaseDetail() {
       )}
 
       <div className="case-grid">
-        <CaseEvidence caseId={c.id} />
+        <CaseEvidence caseId={c.id} canRegister={c.status === 'open' && canRegisterEvidence(user)} />
         <Members caseRow={c} members={data.members} manage={manage} onChange={reload} />
       </div>
     </>

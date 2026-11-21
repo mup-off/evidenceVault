@@ -9,6 +9,7 @@ import '@fontsource/archivo/800.css';
 import '@fontsource/ibm-plex-mono/400.css';
 import '@fontsource/ibm-plex-mono/500.css';
 import './styles/global.css';
+import './styles/evidence.css';
 
 import App from './App.jsx';
 import { AuthProvider } from './auth/AuthContext.jsx';

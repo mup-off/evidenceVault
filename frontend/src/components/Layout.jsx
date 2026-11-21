@@ -25,11 +25,6 @@ export default function Layout() {
           {navFor(user).map((item) => (
             <NavLink key={item.to} to={item.to} end={item.end} className="nav-link">
               <span>{item.label}</span>
-              {item.phase && (
-                <span className="nav-soon" title={`Screen built in Phase ${item.phase}`}>
-                  P{item.phase}
-                </span>
-              )}
             </NavLink>
           ))}
         </nav>

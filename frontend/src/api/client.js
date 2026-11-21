@@ -81,3 +81,89 @@ export async function api(path, { method = 'GET', body, signal } = {}) {
   }
   return data;
 }
+
+/** File name from a Content-Disposition header, preferring the UTF-8 form. */
+function fileNameFrom(disposition, fallback) {
+  const star = /filename\*=UTF-8''([^;]+)/i.exec(disposition || '');
+  if (star) {
+    try {
+      return decodeURIComponent(star[1]);
+    } catch {
+      // fall through
+    }
+  }
+  const plain = /filename="([^"]+)"/i.exec(disposition || '');
+  return plain ? plain[1] : fallback;
+}
+
+/**
+ * Downloads a file (the API needs the bearer header, so a plain link will not
+ * do) and hands it to the browser to save. Returns the response headers.
+ */
+export async function download(path, fallbackName = 'download') {
+  const token = getToken();
+  let res;
+  try {
+    res = await fetch(`/api${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+  } catch {
+    throw new ApiError(0, UNREACHABLE);
+  }
+  if (!res.ok) {
+    const data = (res.headers.get('content-type') || '').includes('application/json') ? await res.json().catch(() => null) : null;
+    if (res.status === 401 && token) {
+      setToken(null);
+      unauthorizedHandler?.(data?.error || 'Your session has ended. Please sign in again.');
+    }
+    throw new ApiError(res.status, data?.error || `Download failed (${res.status})`, data);
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileNameFrom(res.headers.get('content-disposition'), fallbackName);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  return res.headers;
+}
+
+/**
+ * Multipart upload with progress. onProgress receives a fraction 0..1.
+ * (fetch cannot report upload progress, so this uses XMLHttpRequest.)
+ */
+export function upload(path, formData, onProgress) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `/api${path}`);
+    const token = getToken();
+    if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress?.(e.loaded / e.total);
+    };
+    xhr.onerror = () => reject(new ApiError(0, UNREACHABLE));
+    xhr.onload = () => {
+      let data = null;
+      try {
+        data = JSON.parse(xhr.responseText);
+      } catch {
+        // not JSON
+      }
+      if (xhr.status === 401 && token) {
+        setToken(null);
+        unauthorizedHandler?.(data?.error || 'Your session has ended. Please sign in again.');
+      }
+      if (xhr.status >= 200 && xhr.status < 300) resolve(data);
+      else if (!data && xhr.status >= 500) reject(new ApiError(xhr.status, UNREACHABLE));
+      else reject(new ApiError(xhr.status, data?.error || `Upload failed (${xhr.status})`, data));
+    };
+    xhr.send(formData);
+  });
+}
+
+/** SHA-256 of a File in the browser, as lowercase hex (Web Crypto). */
+export async function sha256Hex(file) {
+  const digest = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+}

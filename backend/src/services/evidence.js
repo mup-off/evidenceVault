@@ -23,6 +23,7 @@ function publicEvidence(row) {
     evidenceCode: row.evidence_code,
     caseId: row.case_id,
     caseNumber: row.case_number ?? undefined,
+    caseStatus: row.case_status ?? undefined,
     title: row.title,
     description: row.description,
     originalName: row.original_name,

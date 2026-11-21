@@ -29,8 +29,24 @@ In development, the sign-in page has quick-fill buttons for the seeded demo acco
 | `src/auth/AuthContext.jsx` | signed-in user. On load, re-reads the user from `/api/auth/me` |
 | `src/auth/guards.jsx` | `RequireAuth` and `RequireRole` route guards, and a safe return path after sign-in |
 | `src/roles.js` | role labels, the permission rules the screens need, and role-filtered navigation |
-| `src/pages/` | sign-in, dashboard, case list, case detail, and placeholders for the Phase 5 screens |
-| `src/styles/global.css` | the whole theme: CSS variables at the top |
+| `src/pages/` | one file per screen: sign-in, dashboard, cases, evidence list/detail/register, report, audit log, alerts, users |
+| `src/components/evidence.jsx` | hash display, integrity verdict, history timeline, collection details (shared by detail and report) |
+| `src/styles/global.css` | the theme (CSS variables at the top), layout and shared components |
+| `src/styles/evidence.css` | the evidence, report (including print), audit, alert and user screens |
+
+## Screens
+
+| Path | Who | What |
+| --- | --- | --- |
+| `/` | everyone | Dashboard: counts, integrity bar, transfers waiting for you (accept/reject), open alerts |
+| `/cases`, `/cases/:id` | everyone (investigators: assigned cases) | Case list, new case, members, close/reopen, the case's evidence |
+| `/evidence` | everyone | Search by code, title, case number or a 6+ character SHA-256 prefix |
+| `/evidence/new` | administrator, investigator | Register: drag-and-drop file, browser-side SHA-256, collection details, upload progress |
+| `/evidence/:id` | everyone who may view the case | Fingerprint, Verify integrity, Download (not auditors), custody transfer, history timeline |
+| `/evidence/:id/report` | same | Generate and print the chain-of-custody report |
+| `/audit` | administrator, auditor | Audit log with filters and Verify chain; broken entries are highlighted |
+| `/alerts` | administrator, auditor | Open and acknowledged alerts; administrators acknowledge |
+| `/users` | administrator | Create users, change roles, deactivate, unlock, reset passwords |
 
 Notes:
 
