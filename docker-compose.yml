@@ -1,0 +1,26 @@
+# PostgreSQL 16 for EvidenceVault (development and tests).
+# Start with:  docker compose up -d
+# The init script runs only on the first start (when the volume is empty).
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: evidencevault-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:-postgres_dev_only}
+      EV_OWNER_PASSWORD: ${EV_OWNER_PASSWORD:-owner_dev_only}
+      EV_APP_PASSWORD: ${EV_APP_PASSWORD:-app_dev_only}
+    ports:
+      - "${EV_DB_PORT:-5434}:5432"
+    volumes:
+      - evidencevault-pgdata:/var/lib/postgresql/data
+      - ./backend/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  evidencevault-pgdata:

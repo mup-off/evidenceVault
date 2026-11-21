@@ -1,0 +1,4 @@
+# Keep LF everywhere: the Postgres init script runs in a Linux container,
+# where CRLF line endings break it.
+* text=auto eol=lf
+*.enc binary

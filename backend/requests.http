@@ -1,0 +1,185 @@
+# EvidenceVault API — manual requests.
+# Needs the "REST Client" extension (humao.rest-client) in VS Code.
+# Click "Send Request" above any request. Run "login" first: the others reuse its token.
+
+@base = http://localhost:4000/api
+@password = EvidenceVault#2026
+
+### Health check (no sign-in)
+GET {{base}}/health
+
+### Sign in as the investigator
+# @name login
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "investigator@evidencevault.local",
+  "password": "{{password}}"
+}
+
+### Who am I? (uses the token from "login")
+GET {{base}}/auth/me
+Authorization: Bearer {{login.response.body.token}}
+
+### List my cases
+GET {{base}}/cases
+Authorization: Bearer {{login.response.body.token}}
+
+### Create a case
+POST {{base}}/cases
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "caseNumber": "RIB-2026-0002",
+  "title": "Test case from requests.http"
+}
+
+### Register evidence (uploads README.md as a sample file into case 1)
+POST {{base}}/evidence
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: multipart/form-data; boundary=EVBOUNDARY
+
+--EVBOUNDARY
+Content-Disposition: form-data; name="caseId"
+
+1
+--EVBOUNDARY
+Content-Disposition: form-data; name="title"
+
+Sample document
+--EVBOUNDARY
+Content-Disposition: form-data; name="collectedBy"
+
+Det. Demo
+--EVBOUNDARY
+Content-Disposition: form-data; name="file"; filename="README.md"
+Content-Type: text/markdown
+
+< ./README.md
+--EVBOUNDARY--
+
+### List evidence (q searches code, title, case number or hash prefix)
+GET {{base}}/evidence?q=EV-
+Authorization: Bearer {{login.response.body.token}}
+
+### Verify evidence 1
+POST {{base}}/evidence/1/verify
+Authorization: Bearer {{login.response.body.token}}
+
+### Download evidence 1 (blocked with 409 if the check fails)
+GET {{base}}/evidence/1/download
+Authorization: Bearer {{login.response.body.token}}
+
+### Wrong password (send this 5 times to see the account lock with 423)
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "investigator2@evidencevault.local",
+  "password": "wrong-password"
+}
+
+### Sign in as the administrator
+# @name admin
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@evidencevault.local",
+  "password": "{{password}}"
+}
+
+### List users (administrator only); shows who is locked
+GET {{base}}/users
+Authorization: Bearer {{admin.response.body.token}}
+
+### Unlock investigator2 (check its id in the list above; seeded id is 3)
+PATCH {{base}}/users/3
+Authorization: Bearer {{admin.response.body.token}}
+Content-Type: application/json
+
+{
+  "unlock": true
+}
+
+### ---------------------------------------------------------------------------
+### Phase 3: custody, audit, alerts, reports
+### ---------------------------------------------------------------------------
+
+### Sign in as the custodian
+# @name custodian
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "custodian@evidencevault.local",
+  "password": "{{password}}"
+}
+
+### Sign in as the auditor
+# @name auditor
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "auditor@evidencevault.local",
+  "password": "{{password}}"
+}
+
+### Find the custodian's user id (for toUserId below)
+GET {{base}}/users/directory?role=custodian
+Authorization: Bearer {{login.response.body.token}}
+
+### Investigator requests a transfer of evidence 1 to the custodian (seeded custodian id is 4)
+# @name transfer
+POST {{base}}/evidence/1/transfers
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "toUserId": 4,
+  "reason": "Lodging in the evidence room"
+}
+
+### Custodian: transfers waiting for me
+GET {{base}}/transfers?direction=incoming&status=pending
+Authorization: Bearer {{custodian.response.body.token}}
+
+### Custodian accepts the transfer
+POST {{base}}/transfers/{{transfer.response.body.transfer.id}}/accept
+Authorization: Bearer {{custodian.response.body.token}}
+Content-Type: application/json
+
+{
+  "note": "Received in sealed bag"
+}
+
+### Full history of evidence 1
+GET {{base}}/evidence/1/history
+Authorization: Bearer {{auditor.response.body.token}}
+
+### Chain-of-custody report for evidence 1 (fresh integrity check + anchored chain head)
+GET {{base}}/evidence/1/report
+Authorization: Bearer {{auditor.response.body.token}}
+
+### Audit log, newest first
+GET {{base}}/audit?limit=20
+Authorization: Bearer {{auditor.response.body.token}}
+
+### Verify the audit chain (run `npm run tamper:log` first to see it break)
+POST {{base}}/audit/verify
+Authorization: Bearer {{auditor.response.body.token}}
+
+### Open alerts
+GET {{base}}/alerts
+Authorization: Bearer {{auditor.response.body.token}}
+
+### Acknowledge alert 1 (administrator only)
+POST {{base}}/alerts/1/acknowledge
+Authorization: Bearer {{admin.response.body.token}}
+
+### Dashboard (try it with each token)
+GET {{base}}/dashboard
+Authorization: Bearer {{custodian.response.body.token}}
