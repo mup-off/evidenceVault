@@ -36,8 +36,16 @@ async function main() {
     throw err;
   }
 
-  createApp().listen(config.port, () => {
+  const server = createApp().listen(config.port, () => {
     console.log(`EvidenceVault API listening on http://localhost:${config.port}`);
+  });
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`\nEvidenceVault will not start: port ${config.port} is already in use.`);
+      console.error('Another copy of the API is probably running. Stop it, or set PORT in .env to use another port.\n');
+      process.exit(1);
+    }
+    throw err;
   });
 }
 

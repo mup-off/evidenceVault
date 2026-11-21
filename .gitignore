@@ -1,0 +1,7 @@
+node_modules/
+.env
+# Keys and evidence never go into version control.
+data/
+tests/.tmp/
+coverage/
+plan.md
