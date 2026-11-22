@@ -37,7 +37,7 @@ Tester: ____________  Date: ____________  Browser and version: ____________
 | A9 | Open EV-2026-000001 → **Verify integrity** | A green **Verified** stamp. Recorded and current hashes both show "match" | |
 | A10 | **Download original** | The file downloads, and opening it shows the same screenshot | |
 | A11 | In Custody, choose `Demo Custodian`, give the reason "Lodging in the evidence room", and request the transfer | A pending card shows Demo Investigator → Demo Custodian. Custodian is still you | |
-| A12 | History panel | Shows Registered, Integrity verified, Original downloaded and Transfer requested, each with a time in CAT and an entry number | |
+| A12 | History panel | Newest first: Transfer requested, Original downloaded, Integrity verified, Registered, each with a time in CAT and an entry number | |
 | A13 | Custody report → **Generate report** → **Print / save as PDF** | The print preview has no sidebar or buttons. It has sections 1–6, the chain seal hash and signature lines | |
 | A14 | Evidence → search the first 8 characters of the hash | Both items are found | |
 | A15 | Type `/audit` in the address bar | "403 · Access refused", without claiming that anything was logged | |

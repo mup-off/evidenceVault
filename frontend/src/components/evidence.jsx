@@ -127,11 +127,12 @@ function entryDetail(entry) {
   }
 }
 
-/** Vertical timeline of an item's audit entries, oldest first. */
-export function HistoryTimeline({ entries }) {
+/** Vertical timeline of an item's audit entries: oldest first, or newest first with `newestFirst`. */
+export function HistoryTimeline({ entries, newestFirst = false }) {
+  const ordered = [...entries].sort((a, b) => (newestFirst ? b.seq - a.seq : a.seq - b.seq));
   return (
     <ol className="timeline">
-      {entries.map((e) => {
+      {ordered.map((e) => {
         const detail = entryDetail(e);
         return (
           <li key={e.seq} className={`tl tl-${TONE[e.action] || 'plain'}`}>

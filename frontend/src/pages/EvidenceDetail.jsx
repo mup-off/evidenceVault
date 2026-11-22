@@ -284,9 +284,12 @@ export default function EvidenceDetail() {
             <CollectionDetails metadata={ev.collectionMetadata} />
           </Panel>
 
-          <Panel title="History" meta={history.data && <span className="count">{history.data.history.length} entries</span>}>
+          <Panel
+            title="History"
+            meta={history.data && <span className="count">{history.data.history.length} entries · newest first</span>}
+          >
             <ErrorNote error={history.error} />
-            {history.data ? <HistoryTimeline entries={history.data.history} /> : <Loading label="Loading history" />}
+            {history.data ? <HistoryTimeline entries={history.data.history} newestFirst /> : <Loading label="Loading history" />}
           </Panel>
         </div>
 
