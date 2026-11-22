@@ -200,7 +200,7 @@ export default function CaseDetail() {
   const [statusError, setStatusError] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  if (error?.status === 403) return <Forbidden>You are not assigned to this case.</Forbidden>;
+  if (error?.status === 403) return <Forbidden logged>You are not assigned to this case.</Forbidden>;
   if (error?.status === 404 || error?.status === 400) return <NotFound what="case" />;
   if (loading && !data) return <Loading label="Opening case" />;
   if (error) return <ErrorNote error={error} />;

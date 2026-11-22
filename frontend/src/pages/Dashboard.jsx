@@ -166,6 +166,9 @@ export default function Dashboard() {
                     </span>
                   }
                 >
+                  <p className="panel-link">
+                    <Link to="/alerts">View all alerts →</Link>
+                  </p>
                   {data.alerts.latest.length === 0 ? (
                     <Empty title="No open alerts" />
                   ) : (

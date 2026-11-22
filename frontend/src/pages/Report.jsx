@@ -20,7 +20,7 @@ export default function Report() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
 
-  if (item.error?.status === 403) return <Forbidden>This item belongs to a case you are not assigned to.</Forbidden>;
+  if (item.error?.status === 403) return <Forbidden logged>This item belongs to a case you are not assigned to.</Forbidden>;
   if (item.error?.status === 404 || item.error?.status === 400) return <NotFound what="evidence item" />;
   if (item.error) return <ErrorNote error={item.error} />;
   if (!item.data) return <Loading />;

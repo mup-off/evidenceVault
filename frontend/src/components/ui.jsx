@@ -94,12 +94,20 @@ export function Splash() {
   );
 }
 
-export function Forbidden({ children }) {
+/**
+ * logged: true when the API refused the request (it then writes ACCESS_DENIED
+ * to the audit log). Screens hidden by role in the browser never reach the
+ * API, so nothing is recorded for them and the page must not claim otherwise.
+ */
+export function Forbidden({ children, logged = false }) {
   return (
     <div className="refusal">
       <p className="kicker">403 · Access refused</p>
       <h1>You do not have access to this</h1>
-      <p>{children || 'Your role does not allow this screen.'} The attempt has been recorded in the audit log.</p>
+      <p>
+        {children || 'Your role does not allow this screen.'}
+        {logged && ' The attempt has been recorded in the audit log.'}
+      </p>
       <Link className="btn" to="/">
         Back to dashboard
       </Link>
