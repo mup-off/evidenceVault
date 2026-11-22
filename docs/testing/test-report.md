@@ -14,9 +14,9 @@
 | Automated API tests (Jest + Supertest) | 333 | 333 | 0 | ✅ Passed |
 | … of which: role matrix (every route × every role) | 194 | 194 | 0 | ✅ Passed |
 | … of which: Testing and demo plan rows R01–R20 | 22 | 22 | 0 | ✅ Passed |
-| Manual browser scripts A–F | 47 | | | ⏳ To be run |
+| Manual browser scripts A–F | 47 | 47 | 0 | ✅ Passed |
 
-All automated tests pass. Phase 6 found one defect, which has been fixed and retested (see [Defects](#defects)). The manual browser scripts still need to be run and recorded below.
+All automated tests and all manual browser scripts pass. Phase 6 found three defects. All three have been fixed and retested (see [Defects](#5-defects)).
 
 ## 1. Automated API tests
 
@@ -112,28 +112,32 @@ The same scenarios are run by hand in the browser in manual scripts A–E, and l
 
 ## 4. Manual browser tests
 
-The scripts are in [manual-test-scripts.md](manual-test-scripts.md). Record each script's result here.
+The scripts are in [manual-test-scripts.md](manual-test-scripts.md). They were run in Chrome against a freshly reset demo database.
 
 | Script | Role | Steps | Passed | Failed | Tester | Date |
 | --- | --- | --- | --- | --- | --- | --- |
-| A | Investigator | 16 | | | | |
-| B | Custodian | 6 | | | | |
-| C | Tamper demo | 4 | | | | |
-| D | Auditor | 6 | | | | |
-| E | Administrator | 10 | | | | |
-| F | Layout and robustness | 5 | | | | |
+| A | Investigator | 16 | 16 | 0 | MUPENZI Fulgence | 22 Nov 2026 |
+| B | Custodian | 6 | 6 | 0 | MUPENZI Fulgence | 22 Nov 2026 |
+| C | Tamper demo | 4 | 4 | 0 | MUPENZI Fulgence | 22 Nov 2026 |
+| D | Auditor | 6 | 6 | 0 | MUPENZI Fulgence | 22 Nov 2026 |
+| E | Administrator | 10 | 10 | 0 | MUPENZI Fulgence | 22 Nov 2026 |
+| F | Layout and robustness | 5 | 5 | 0 | MUPENZI Fulgence | 22 Nov 2026 |
+| **Total** | | **47** | **47** | **0** | | |
+
+Step A11 first failed because of defect D3. It passed on the rerun after the fix, and is counted as passed above.
 
 ## 5. Defects
 
 | # | Found in | Description | Severity | Fix | Retest |
 | --- | --- | --- | --- | --- | --- |
 | D1 | Phase 6 code review | The "403 · Access refused" page always said "The attempt has been recorded in the audit log", including for screens the browser blocks by role. Those never reach the API, so nothing was logged and the message was false. | Low | The message now appears only when the API refused the request (case, evidence and report pages) | ✅ Frontend build; manual step A15 |
-| D3 | Manual script A, step A11 | On screens narrower than 1100 px, the evidence page drops to one column and the Custody panel (with the transfer form) ended up below the full history timeline. The tester could not find it. | Medium | In one column, Custody now comes first. A "Hand over custody" / "Pending transfer" button in the page header scrolls to it. | ⏳ Rerun A11 |
+| D3 | Manual script A, step A11 | On screens narrower than 1100 px, the evidence page drops to one column and the Custody panel (with the transfer form) ended up below the full history timeline. The tester could not find it. | Medium | In one column, Custody now comes first. A "Hand over custody" / "Pending transfer" button in the page header scrolls to it. | ✅ A11 rerun passed |
 | D2 | Phase 6 test runs | When the machine was busy, the per-test database reset sometimes went over Jest's 20 s limit. A different test failed each time. This was a test-infrastructure problem, not a product defect. | Low | Test timeout raised to 60 s | ✅ 333/333 on rerun |
 
-Two changes made during Phase 5 were requested by the user, not defects. They are listed here for completeness:
+Three changes were requested by the user rather than found as defects. They are listed here for completeness:
 
 - **Collected by.** "Collected by" is now always the registering user, and is read-only in the form and enforced by the API.
+- **History order.** On the evidence page, history is listed newest first so recent activity is easy to find. The custody report keeps it oldest first, in chain-of-custody order.
 - **Startup message.** The server now prints a clear message, instead of a stack trace, when its port is already in use.
 
 ## 6. Not covered
