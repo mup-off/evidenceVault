@@ -223,6 +223,15 @@ export default function EvidenceDetail() {
                 {busy === 'download' ? 'Checking, then downloading…' : 'Download original'}
               </button>
             )}
+            {(showTransferForm || (pending && (pending.to.id === user.id || pending.from.id === user.id))) && (
+              <button
+                type="button"
+                className="btn"
+                onClick={() => document.getElementById('custody')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              >
+                {pending ? 'Pending transfer' : 'Hand over custody'}
+              </button>
+            )}
             <Link className="btn" to={`/evidence/${ev.id}/report`}>
               Custody report
             </Link>
@@ -281,7 +290,7 @@ export default function EvidenceDetail() {
           </Panel>
         </div>
 
-        <aside className="evidence-side">
+        <aside className="evidence-side" id="custody">
           <Panel title="Custody">
             <p className="kicker">Current custodian</p>
             <p className="custodian">

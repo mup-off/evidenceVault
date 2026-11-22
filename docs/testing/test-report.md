@@ -128,6 +128,7 @@ The scripts are in [manual-test-scripts.md](manual-test-scripts.md). Record each
 | # | Found in | Description | Severity | Fix | Retest |
 | --- | --- | --- | --- | --- | --- |
 | D1 | Phase 6 code review | The "403 · Access refused" page always said "The attempt has been recorded in the audit log", including for screens the browser blocks by role. Those never reach the API, so nothing was logged and the message was false. | Low | The message now appears only when the API refused the request (case, evidence and report pages) | ✅ Frontend build; manual step A15 |
+| D3 | Manual script A, step A11 | On screens narrower than 1100 px, the evidence page drops to one column and the Custody panel (with the transfer form) ended up below the full history timeline. The tester could not find it. | Medium | In one column, Custody now comes first. A "Hand over custody" / "Pending transfer" button in the page header scrolls to it. | ⏳ Rerun A11 |
 | D2 | Phase 6 test runs | When the machine was busy, the per-test database reset sometimes went over Jest's 20 s limit. A different test failed each time. This was a test-infrastructure problem, not a product defect. | Low | Test timeout raised to 60 s | ✅ 333/333 on rerun |
 
 Two changes made during Phase 5 were requested by the user, not defects. They are listed here for completeness:

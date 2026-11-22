@@ -732,6 +732,13 @@
   .evidence-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+  /* One column: custody (where the actions are) comes first, not under the history. */
+  .evidence-side {
+    order: -1;
+  }
+}
+#custody {
+  scroll-margin-top: 16px;
 }
 
 @media (max-width: 560px) {
