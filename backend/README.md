@@ -71,7 +71,7 @@ All routes except sign-in and health need `Authorization: Bearer <token>`.
 
 | Method | Path | Who |
 | --- | --- | --- |
-| POST | /api/evidence | administrator; investigator on an assigned, open case. Multipart fields: `file`, `caseId`, `title`, optional `description`, `collectedAt`, `collectedBy`, `collectionLocation`, `sourceDevice`, `collectionNotes`. Returns `warnings` (for example, a duplicate file). |
+| POST | /api/evidence | administrator; investigator on an assigned, open case. Multipart fields: `file`, `caseId`, `title`, optional `description`, `collectedAt`, `collectionLocation`, `sourceDevice`, `collectionNotes`. "Collected by" is always recorded as the signed-in user; a `collectedBy` field is ignored. Returns `warnings` (for example, a duplicate file). |
 | GET | /api/evidence?caseId=&q= | all roles; investigators see only assigned cases. `q` matches the code, title, case number or a SHA-256 prefix (6 or more hex characters). |
 | GET | /api/evidence/:id | anyone who may view the case |
 | POST | /api/evidence/:id/verify | anyone who may view the case. Returns `result` with `status`, `reasons`, and the recorded and current hashes. |

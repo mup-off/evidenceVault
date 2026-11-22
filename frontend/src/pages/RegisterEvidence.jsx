@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router';
 
 import { sha256Hex, upload } from '../api/client.js';
 import { useResource } from '../api/useResource.js';
+import { useAuth } from '../auth/AuthContext.jsx';
 import { Hash } from '../components/evidence.jsx';
 import { ErrorNote, PageHeader, Tag } from '../components/ui.jsx';
 import { formatBytes } from '../format.js';
@@ -17,6 +18,7 @@ function nowLocal() {
 }
 
 export default function RegisterEvidence() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const casesRes = useResource('/cases?status=open');
@@ -31,7 +33,6 @@ export default function RegisterEvidence() {
     title: '',
     description: '',
     collectedAt: nowLocal(),
-    collectedBy: '',
     collectionLocation: '',
     sourceDevice: '',
     collectionNotes: '',
@@ -73,7 +74,8 @@ export default function RegisterEvidence() {
     data.append('title', form.title.trim());
     if (form.description.trim()) data.append('description', form.description.trim());
     if (form.collectedAt) data.append('collectedAt', new Date(form.collectedAt).toISOString());
-    for (const k of ['collectedBy', 'collectionLocation', 'sourceDevice', 'collectionNotes']) {
+    // "Collected by" is not sent: the API records the signed-in user's name.
+    for (const k of ['collectionLocation', 'sourceDevice', 'collectionNotes']) {
       if (form[k].trim()) data.append(k, form[k].trim());
     }
     data.append('file', file, file.name); // file last, after the text fields
@@ -236,7 +238,8 @@ export default function RegisterEvidence() {
             </label>
             <label className="field">
               <span>Collected by</span>
-              <input value={form.collectedBy} onChange={set('collectedBy')} maxLength={200} placeholder="Name and rank" disabled={uploading} />
+              <input value={user.fullName} readOnly aria-readonly="true" className="input-locked" />
+              <small className="field-hint">Recorded as the person registering this item.</small>
             </label>
             <label className="field">
               <span>Location</span>

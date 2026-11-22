@@ -55,9 +55,10 @@ describe('registering evidence', () => {
     expect(ev.sizeBytes).toBe(PHOTO.length);
     expect(ev.currentCustodianId).toBe(inv.user.id);
     expect(ev.integrityStatus).toBe('unverified');
+    // "Collected by" is always the registering user; the submitted name is ignored.
     expect(ev.collectionMetadata).toEqual({
       collectedAt: '2026-11-20T10:30:00.000Z',
-      collectedBy: 'Det. Mugisha',
+      collectedBy: inv.user.full_name,
       collectionLocation: 'Kicukiro',
     });
     expect(res.body.warnings).toEqual([]);

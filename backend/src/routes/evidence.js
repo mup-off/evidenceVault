@@ -43,7 +43,6 @@ function collectionMetadata(input) {
     if (when.getTime() > Date.now() + 5 * 60 * 1000) throw new HttpError(400, 'collectedAt cannot be in the future');
     meta.collectedAt = when.toISOString();
   }
-  text('collectedBy', 200);
   text('collectionLocation', 300);
   text('sourceDevice', 300);
   text('collectionNotes', 2000);
@@ -122,7 +121,8 @@ router.post(
     const caseId = validate.id(input.caseId, 'caseId');
     const title = validate.string(input.title, 'title');
     const description = validate.string(input.description, 'description', { optional: true, max: 5000 });
-    const metadata = collectionMetadata(input);
+    // "Collected by" is always the person registering; any value sent is ignored.
+    const metadata = { ...collectionMetadata(input), collectedBy: req.user.fullName };
 
     const caseRow = await cases.getViewableCase(req, caseId); // investigators: assigned cases only
     if (caseRow.status === 'closed') {
